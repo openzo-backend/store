@@ -13,8 +13,7 @@ RUN go mod download
 
 # Copy the rest of the application source code
 COPY . .
-# RUN cd cmd
-WORKDIR /go/src/app/cmd
+
 # Build the Go application
 RUN go build -o main .
 
