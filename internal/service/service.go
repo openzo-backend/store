@@ -70,6 +70,14 @@ func (s *storeService) UpdateStore(ctx *gin.Context, req models.Store) (models.S
 		return models.Store{}, err
 	}
 
+	store, err := s.storeRepository.GetStoreByID(req.ID)
+
+	if err != nil {
+		return models.Store{}, err
+	}
+
+	req.Image = store.Image
+
 	file, err := ctx.FormFile("image")
 	if err == nil {
 
