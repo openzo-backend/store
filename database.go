@@ -12,24 +12,26 @@ import (
 
 func connectToDB(cfg *config.Config) (*gorm.DB, error) {
 
+	db := &gorm.DB{}
+	err := error(nil)
 	if cfg.MODE == "production" {
 		dsn := cfg.DB_URL
 
-		db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
 			return nil, fmt.Errorf("failed to open database connection: %w", err)
 		}
 		fmt.Println("Connected to database in production mode")
-		return db, nil
+	} else {
 
-	}
-	db, err := gorm.Open(
-		sqlite.Open("test.db"),
+		db, err = gorm.Open(
+			sqlite.Open("test.db"),
 
-		&gorm.Config{},
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open database connection: %w", err)
+			&gorm.Config{},
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to open database connection: %w", err)
+		}
 	}
 	db.Migrator().AutoMigrate(&models.Store{})
 	return db, nil
