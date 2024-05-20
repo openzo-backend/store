@@ -12,13 +12,14 @@ import (
 
 func connectToDB(cfg *config.Config) (*gorm.DB, error) {
 
-	if cfg.MODE == "prdoduction" {
+	if cfg.MODE == "production" {
 		dsn := cfg.DB_URL
 
 		db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
 			return nil, fmt.Errorf("failed to open database connection: %w", err)
 		}
+		fmt.Println("Connected to database in production mode")
 		return db, nil
 
 	}

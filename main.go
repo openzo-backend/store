@@ -94,8 +94,8 @@ func main() {
 	router.GET("/pincode/:pincode/category/:category", handler.GetStoresByPincodeAndCategory)
 	router.GET("/phone/:phone_no", handler.GetStoreByPhoneNo)
 	router.GET("/getCategories", handler.GetCategories)
-	router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
 	router.GET("/:id", handler.GetStoreByID)
+	router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
 	router.PUT("/:id", handler.UpdateStore)
 
 	// router.Use(middlewares.JwtMiddleware)
