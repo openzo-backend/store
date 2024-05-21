@@ -122,7 +122,8 @@ func consumeKafka(storeRepo repository.StoreRepository, notificationProducer *ka
 	consumer, _ := kafka.NewConsumer(&conf)
 	consumer.SubscribeTopics([]string{topic}, nil)
 	var order struct {
-		StoreId string `json:"store_id"`
+		StoreId     string `json:"store_id"`
+		OrderStatus string `json:"order_status"`
 	}
 	run := true
 	for run {
@@ -137,25 +138,27 @@ func consumeKafka(storeRepo repository.StoreRepository, notificationProducer *ka
 			}
 			fmt.Println("Order received: ", order)
 
-			fcm, err := storeRepo.GetFCMTokenByStoreID(order.StoreId)
-			if err != nil {
-				fmt.Println("Error getting FCM token: ", err)
+			if order.OrderStatus == "placed" {
+				fcm, err := storeRepo.GetFCMTokenByStoreID(order.StoreId)
+				if err != nil {
+					fmt.Println("Error getting FCM token: ", err)
+				}
+				fmt.Println("FCM token: ", fcm)
+
+				notificationMsg, _ := json.Marshal(Notification{
+					Message:  "You have a new order",
+					FCMToken: fcm,
+				})
+				notificationTopic := "notification"
+
+				// send a notification to the store
+				notificationProducer.Produce(&kafka.Message{
+					TopicPartition: kafka.TopicPartition{Topic: &notificationTopic, Partition: kafka.PartitionAny},
+					Value:          notificationMsg,
+				}, nil)
+
+				notificationProducer.Flush(15 * 1000)
 			}
-			fmt.Println("FCM token: ", fcm)
-
-			notificationMsg, _ := json.Marshal(Notification{
-				Message:  "You have a new order",
-				FCMToken: fcm,
-			})
-			notificationTopic := "notification"
-
-			// send a notification to the store
-			notificationProducer.Produce(&kafka.Message{
-				TopicPartition: kafka.TopicPartition{Topic: &notificationTopic, Partition: kafka.PartitionAny},
-				Value:          notificationMsg,
-			}, nil)
-
-			notificationProducer.Flush(15 * 1000)
 
 		case kafka.Error:
 			fmt.Fprintf(os.Stderr, "%% Error: %v\n", ev)

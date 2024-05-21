@@ -162,7 +162,7 @@ type Store struct {
 	Name                string    `json:"name"`
 	UserEmail           string    `json:"user_email"`
 	Image               string    `json:"image"`
-	Phone               string    `json:"phone"`
+	Phone               string    `json:"phone" gorm:"unique"`
 	Address             string    `json:"address"`
 	Pincode             string    `json:"pincode"`
 	Location            string    `json:"location"`
@@ -173,6 +173,5 @@ type Store struct {
 	SelfDeliveryService bool      `json:"self_delivery_service" gorm:"default:false"`
 	StoreType           StoreType `json:"store_type"`
 	DetailsComplete     bool      `json:"details_complete" gorm:"default:false"`
-
-	FCMToken string `json:"fcm_token"`
+	FCMToken            string    `json:"fcm_token"`
 }
