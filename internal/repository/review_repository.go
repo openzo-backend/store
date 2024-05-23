@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/google/uuid"
 	"github.com/tanush-128/openzo_backend/store/internal/models"
 	"gorm.io/gorm"
 )
@@ -28,6 +29,7 @@ func NewReviewRepository(db *gorm.DB) ReviewRepository {
 }
 
 func (r *reviewRepository) CreateReview(Review models.Review) (models.Review, error) {
+	Review.ID = uuid.New().String()
 	tx := r.db.Create(&Review)
 
 	if tx.Error != nil {
