@@ -13,9 +13,10 @@ type StoreService interface {
 	//CRUD
 	CreateStore(ctx *gin.Context, req models.Store) (models.Store, error)
 	GetStoreByID(ctx *gin.Context, id string) (models.Store, error)
-	GetStoresByPincode(ctx *gin.Context, pincode string) ([]models.Store, error)
-	GetStoresByPincodeAndCategory(ctx *gin.Context, pincode string, category string) ([]models.Store, error)
+	GetStoresByPincode(ctx *gin.Context, pincode string) ([]models.StorePublic, error)
+	GetStoresByPincodeAndCategory(ctx *gin.Context, pincode string, category string) ([]models.StorePublic, error)
 	GetStoreByPhoneNo(ctx *gin.Context, phoneNo string) (models.Store, error)
+	GetStoreByUserID(ctx *gin.Context, userID string) (models.Store, error)
 	GetCategories(ctx *gin.Context) ([]string, error)
 	UpdateStore(ctx *gin.Context, req models.Store) (models.Store, error)
 }
@@ -61,6 +62,15 @@ func (s *storeService) CreateStore(ctx *gin.Context, req models.Store) (models.S
 	}
 
 	return createdStore, nil
+}
+
+func (s *storeService) GetStoreByUserID(ctx *gin.Context, id string) (models.Store, error) {
+	store, err := s.storeRepository.GetStoreByUserID(id)
+	if err != nil {
+		return models.Store{}, err
+	}
+
+	return store, nil
 }
 
 func (s *storeService) UpdateStore(ctx *gin.Context, req models.Store) (models.Store, error) {

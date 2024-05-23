@@ -34,5 +34,7 @@ func connectToDB(cfg *config.Config) (*gorm.DB, error) {
 		}
 	}
 	db.Migrator().AutoMigrate(&models.Store{})
+	db.Migrator().AutoMigrate(&models.Review{})
+
 	return db, nil
 }

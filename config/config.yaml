@@ -3,5 +3,6 @@ DB_NAME: "user_service_db"
 HTTP_PORT : "8081"
 GRPC_PORT : "50052"
 
-MODE : "production"
+# MODE : "production"
+MODE : "dev"
 

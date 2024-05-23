@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tanush-128/openzo_backend/store/internal/middlewares"
 	"github.com/tanush-128/openzo_backend/store/internal/models"
 	"github.com/tanush-128/openzo_backend/store/internal/service"
 )
@@ -23,6 +24,7 @@ func (h *Handler) CreateStore(ctx *gin.Context) {
 	store.Name = ctx.PostForm("name")
 	store.Pincode = ctx.PostForm("pincode")
 	store.UserEmail = ctx.PostForm("user_email")
+	store.UserID = ctx.PostForm("user_id")
 	store.Address = ctx.PostForm("address")
 	store.Phone = ctx.PostForm("phone")
 	store.Location = ctx.PostForm("location")
@@ -55,6 +57,13 @@ func (h *Handler) GetStoreByID(ctx *gin.Context) {
 		return
 	}
 
+	user := ctx.MustGet("user").(middlewares.User)
+	log.Printf("User : %+v", user)
+
+	if store.UserID != user.ID {
+		store.StorePrivate = models.StorePrivate{}
+	}
+
 	ctx.JSON(http.StatusOK, store)
 }
 
@@ -62,6 +71,24 @@ func (h *Handler) GetStoreByPhoneNo(ctx *gin.Context) {
 	phoneNo := ctx.Param("phone_no")
 
 	store, err := h.storeService.GetStoreByPhoneNo(ctx, phoneNo)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, store)
+}
+
+func (h *Handler) GetStoreByUserID(ctx *gin.Context) {
+	userID := ctx.Param("user_id")
+
+	user := ctx.MustGet("user").(middlewares.User)
+	if user.ID != userID {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	store, err := h.storeService.GetStoreByUserID(ctx, userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type StoreType string
 
 const (
@@ -158,20 +160,45 @@ var storeToProductCategory = map[StoreType][]string{
 }
 
 type Store struct {
-	ID                  string    `json:"id" gorm:"primaryKey"` // The ID field is also the UUID for the store
-	Name                string    `json:"name"`
-	UserEmail           string    `json:"user_email"`
-	Image               string    `json:"image"`
-	Phone               string    `json:"phone" gorm:"unique"`
-	Address             string    `json:"address"`
-	Pincode             string    `json:"pincode"`
-	Location            string    `json:"location"`
-	OpeningTime         string    `json:"opening_time"`
-	ClosingTime         string    `json:"closing_time"`
-	Description         string    `json:"description"`
+	StorePublic
+
+	CreatedAt           time.Time `json:"created_at" gorm:"autoCreateTime"`
+	DetailsComplete     bool      `json:"details_complete" gorm:"default:false"`
 	OnlineDiscovery     bool      `json:"online_discovery" gorm:"default:true"`
 	SelfDeliveryService bool      `json:"self_delivery_service" gorm:"default:false"`
-	StoreType           StoreType `json:"store_type"`
-	DetailsComplete     bool      `json:"details_complete" gorm:"default:false"`
-	FCMToken            string    `json:"fcm_token"`
+
+	StorePrivate
+}
+
+type StorePublic struct {
+	ID          string    `json:"id" gorm:"primaryKey"` // The ID field is also the UUID for the store
+	Name        string    `json:"name"`
+	Image       string    `json:"image"`
+	Pincode     string    `json:"pincode"`
+	StoreType   StoreType `json:"store_type"`
+	Location    string    `json:"location"`
+	Address     string    `json:"address"`
+	OpeningTime string    `json:"opening_time"`
+	ClosingTime string    `json:"closing_time"`
+
+	Rating      float64 `json:"rating" gorm:"default:0"`
+	Description string  `json:"description"`
+	ReviewCount int     `json:"review_count" gorm:"default:0"`
+}
+
+type StorePrivate struct {
+	FCMToken  string `json:"fcm_token" args:"private"`
+	UserID    string `json:"user_id" args:"private" gorm:"unique"`
+	UserEmail string `json:"user_email" args:"private" gorm:"unique"`
+	Phone     string `json:"phone" gorm:"unique" args:"private"`
+}
+
+type Review struct {
+	ID        string    `json:"id" gorm:"primaryKey"`
+	StoreID   string    `json:"store_id"`
+	UserID    string    `json:"user_id"`
+	UserName  string    `json:"user_name"`
+	Rating    int       `json:"rating"`
+	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
+	Review    string    `json:"review"`
 }

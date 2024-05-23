@@ -13,9 +13,10 @@ type StoreRepository interface {
 	CreateStore(Store models.Store) (models.Store, error)
 	GetStoreByID(id string) (models.Store, error)
 	GetStoreByEmail(email string) (models.Store, error)
+	GetStoreByUserID(userID string) (models.Store, error)
 	GetStoreByPhoneNo(phoneNo string) (models.Store, error)
-	GetStoresByPincode(pincode string) ([]models.Store, error)
-	GetStoresByPincodeAndCategory(pincode string, category string) ([]models.Store, error)
+	GetStoresByPincode(pincode string) ([]models.StorePublic, error)
+	GetStoresByPincodeAndCategory(pincode string, category string) ([]models.StorePublic, error)
 	GetCategories() ([]string, error)
 	GetFCMTokenByStoreID(storeID string) (string, error)
 	UpdateStore(Store models.Store) (models.Store, error)
@@ -34,6 +35,7 @@ func NewStoreRepository(db *gorm.DB) StoreRepository {
 
 func (r *storeRepository) CreateStore(Store models.Store) (models.Store, error) {
 	Store.ID = uuid.New().String()
+
 	log.Println("Phone no", Store.Phone)
 	tx := r.db.Create(&Store)
 
@@ -64,6 +66,16 @@ func (r *storeRepository) GetStoreByEmail(email string) (models.Store, error) {
 	return Store, nil
 }
 
+func (r *storeRepository) GetStoreByUserID(userID string) (models.Store, error) {
+	var Store models.Store
+	tx := r.db.Where("user_id = ?", userID).First(&Store)
+	if tx.Error != nil {
+		return models.Store{}, tx.Error
+	}
+
+	return Store, nil
+}
+
 func (r *storeRepository) GetStoreByPhoneNo(phoneNo string) (models.Store, error) {
 	var Store models.Store
 	tx := r.db.Where("phone = ?", phoneNo).First(&Store)
@@ -74,21 +86,22 @@ func (r *storeRepository) GetStoreByPhoneNo(phoneNo string) (models.Store, error
 	return Store, nil
 }
 
-func (r *storeRepository) GetStoresByPincode(pincode string) ([]models.Store, error) {
-	var Stores []models.Store
-	tx := r.db.Where("pincode = ?", pincode).Find(&Stores)
+func (r *storeRepository) GetStoresByPincode(pincode string) ([]models.StorePublic, error) {
+	var Stores []models.StorePublic
+	tx := r.db.Model(&models.Store{}).Where("pincode = ?", pincode).Find(&Stores)
 	if tx.Error != nil {
-		return []models.Store{}, tx.Error
+		return []models.StorePublic{}, tx.Error
 	}
 
 	return Stores, nil
 }
 
-func (r *storeRepository) GetStoresByPincodeAndCategory(pincode string, category string) ([]models.Store, error) {
-	var Stores []models.Store
-	tx := r.db.Find(&Stores, "store_type = ? AND pincode = ?", category, pincode)
+func (r *storeRepository) GetStoresByPincodeAndCategory(pincode string, category string) ([]models.StorePublic, error) {
+	var Stores []models.StorePublic
+
+	tx := r.db.Model(&models.Store{}).Where("store_type = ? AND pincode = ?", category, pincode).Find(&Stores)
 	if tx.Error != nil {
-		return []models.Store{}, tx.Error
+		return []models.StorePublic{}, tx.Error
 	}
 
 	return Stores, nil

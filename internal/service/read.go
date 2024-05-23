@@ -14,13 +14,9 @@ func (s *storeService) GetStoreByID(ctx *gin.Context, id string) (models.Store, 
 	return store, nil
 }
 
-func (s *storeService) GetStoresByPincode(ctx *gin.Context, pincode string) ([]models.Store, error) {
-	stores, err := s.storeRepository.GetStoresByPincode(pincode)
-	if err != nil {
-		return []models.Store{}, err
-	}
+func (s *storeService) GetStoresByPincode(ctx *gin.Context, pincode string) ([]models.StorePublic, error) {
 
-	return stores, nil
+	return s.storeRepository.GetStoresByPincode(pincode)
 }
 
 func (s *storeService) GetStoreByPhoneNo(ctx *gin.Context, phoneNo string) (models.Store, error) {
@@ -32,10 +28,10 @@ func (s *storeService) GetStoreByPhoneNo(ctx *gin.Context, phoneNo string) (mode
 	return store, nil
 }
 
-func (s *storeService) GetStoresByPincodeAndCategory(ctx *gin.Context, pincode string, category string) ([]models.Store, error) {
+func (s *storeService) GetStoresByPincodeAndCategory(ctx *gin.Context, pincode string, category string) ([]models.StorePublic, error) {
 	stores, err := s.storeRepository.GetStoresByPincodeAndCategory(pincode, category)
 	if err != nil {
-		return []models.Store{}, err
+		return []models.StorePublic{}, err
 	}
 
 	return stores, nil

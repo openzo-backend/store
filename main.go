@@ -74,13 +74,17 @@ func main() {
 
 	storeRepository := repository.NewStoreRepository(db)
 	storeRepository2 := repository.NewStoreRepository(db)
+	storeRepository3 := repository.NewStoreRepository(db)
+	reviewRepository := repository.NewReviewRepository(db)
 	StoreService := service.NewStoreService(storeRepository, imageClient)
+	ReviewService := service.NewReviewService(reviewRepository, storeRepository3)
 
 	go consumeKafka(storeRepository2, p)
 
 	// Initialize HTTP server with Gin
 	router := gin.Default()
 	handler := handlers.NewHandler(&StoreService)
+	reviewHandler := handlers.NewReviewHandler(&ReviewService)
 
 	router.GET("ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -89,14 +93,24 @@ func main() {
 	})
 
 	// router.Use(middlewares.JwtMiddleware(c))
-	router.POST("/", handler.CreateStore)
 	router.GET("/pincode/:pincode", handler.GetStoresByPincode)
 	router.GET("/pincode/:pincode/category/:category", handler.GetStoresByPincodeAndCategory)
-	router.GET("/phone/:phone_no", handler.GetStoreByPhoneNo)
 	router.GET("/getCategories", handler.GetCategories)
-	router.GET("/:id", handler.GetStoreByID)
+
+	router.GET("/reviews/:store_id", reviewHandler.GetReviewsByStoreID)
+	router.GET("/review/:id", reviewHandler.GetReviewByID)
+
 	router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
+
+	router.GET("/:id", handler.GetStoreByID)
+	router.GET("/user/:user_id", handler.GetStoreByUserID)
+	router.POST("/", handler.CreateStore)
 	router.PUT("/:id", handler.UpdateStore)
+
+	router.POST("/review", reviewHandler.CreateReview)
+	router.GET("/reviews/user/:user_id", reviewHandler.GetReviewsByUserID)
+	router.PUT("/review/:id", reviewHandler.UpdateReview)
+	router.DELETE("/review/:id", reviewHandler.DeleteReview)
 
 	// router.Use(middlewares.JwtMiddleware)
 
