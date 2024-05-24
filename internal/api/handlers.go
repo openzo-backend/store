@@ -37,6 +37,7 @@ func (h *Handler) CreateStore(ctx *gin.Context) {
 	store.FCMToken = ctx.PostForm("fcm_token")
 
 	log.Println("Phone no", store.Phone)
+	log.Println("User ID", store.UserID)
 
 	createdStore, err := h.storeService.CreateStore(ctx, store)
 	if err != nil {
@@ -138,6 +139,7 @@ func (h *Handler) UpdateStore(ctx *gin.Context) {
 	store.Name = ctx.PostForm("name")
 	store.Pincode = ctx.PostForm("pincode")
 	store.UserEmail = ctx.PostForm("user_email")
+	store.UserID = ctx.PostForm("user_id")
 	store.Address = ctx.PostForm("address")
 	store.Phone = ctx.PostForm("phone")
 	store.Location = ctx.PostForm("location")
