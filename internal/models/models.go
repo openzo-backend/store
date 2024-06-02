@@ -162,11 +162,6 @@ var storeToProductCategory = map[StoreType][]string{
 type Store struct {
 	StorePublic
 
-	CreatedAt           time.Time `json:"created_at" gorm:"autoCreateTime"`
-	DetailsComplete     bool      `json:"details_complete" gorm:"default:false"`
-	OnlineDiscovery     bool      `json:"online_discovery" gorm:"default:true"`
-	SelfDeliveryService bool      `json:"self_delivery_service" gorm:"default:false"`
-
 	StorePrivate
 }
 
@@ -184,13 +179,18 @@ type StorePublic struct {
 	Rating      float64 `json:"rating" gorm:"default:0"`
 	Description string  `json:"description"`
 	ReviewCount int     `json:"review_count" gorm:"default:0"`
+
+	CreatedAt           time.Time `json:"created_at" gorm:"autoCreateTime"`
+	SelfDeliveryService bool      `json:"self_delivery_service" gorm:"default:false"`
 }
 
 type StorePrivate struct {
-	FCMToken  string `json:"fcm_token" args:"private"`
-	UserID    string `json:"user_id" args:"private" gorm:"unique"`
-	UserEmail string `json:"user_email" args:"private" gorm:"unique"`
-	Phone     string `json:"phone" gorm:"unique" args:"private"`
+	FCMToken        string `json:"fcm_token,omitempty" args:"private"`
+	UserID          string `json:"user_id,omitempty" args:"private" gorm:"unique"`
+	UserEmail       string `json:"user_email,omitempty" args:"private" gorm:"unique"`
+	Phone           string `json:"phone,omitempty" gorm:"unique" args:"private"`
+	DetailsComplete bool   `json:"details_complete,omitempty" gorm:"default:false"`
+	OnlineDiscovery bool   `json:"online_discovery,omitempty" gorm:"default:true"`
 }
 
 type Review struct {
@@ -201,4 +201,30 @@ type Review struct {
 	Rating    int       `json:"rating"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	Review    string    `json:"review"`
+}
+
+type RestaurantDetails struct {
+	ID              string `json:"id" gorm:"primaryKey"`
+	StoreID         string `json:"store_id" gorm:"unique"`
+	Cuisine         string `json:"cuisine" gorm:"default:multi cuisine"`
+	PureVeg         bool   `json:"pure_veg" gorm:"default:false"`
+	Alcohol         bool   `json:"alcohol" gorm:"default:false"`
+	SeatingType     string `json:"seating_type" gorm:"default:indoor"`
+	TableCount      int    `json:"table_count"`
+	SeatingCapacity int    `json:"seating_capacity"`
+}
+
+type Restaurant struct {
+	Store
+	RestaurantDetails
+}
+
+type ResTable struct {
+	ID        string `json:"id" gorm:"primaryKey"`
+	StoreID   string `json:"store_id"`
+	Name      string `json:"table_name"`
+	Seats     int    `json:"seats"`
+	Available bool   `json:"available"`
+	Section   string `json:"section"`
+	Shape     string `json:"shape"`
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tanush-128/openzo_backend/store/config"
 	handlers "github.com/tanush-128/openzo_backend/store/internal/api"
-	"github.com/tanush-128/openzo_backend/store/internal/middlewares"
 	"github.com/tanush-128/openzo_backend/store/internal/pb"
 	"github.com/tanush-128/openzo_backend/store/internal/repository"
 	"github.com/tanush-128/openzo_backend/store/internal/service"
@@ -76,15 +75,23 @@ func main() {
 	storeRepository2 := repository.NewStoreRepository(db)
 	storeRepository3 := repository.NewStoreRepository(db)
 	reviewRepository := repository.NewReviewRepository(db)
+	restaurantRepository := repository.NewRestaurantRepository(db)
+	tableRespository := repository.NewTableRepository(db)
+
 	StoreService := service.NewStoreService(storeRepository, imageClient)
 	ReviewService := service.NewReviewService(reviewRepository, storeRepository3)
+	RestaurantService := service.NewRestaurantService(restaurantRepository)
+	TableService := service.NewTableService(tableRespository)
 
 	go consumeKafka(storeRepository2, p)
 
 	// Initialize HTTP server with Gin
 	router := gin.Default()
+
 	handler := handlers.NewHandler(&StoreService)
 	reviewHandler := handlers.NewReviewHandler(&ReviewService)
+	restaurantHandler := handlers.NewRestaurantHandler(&RestaurantService)
+	tableHandler := handlers.NewTableHandler(&TableService)
 
 	router.GET("ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -100,7 +107,19 @@ func main() {
 	router.GET("/reviews/:store_id", reviewHandler.GetReviewsByStoreID)
 	router.GET("/review/:id", reviewHandler.GetReviewByID)
 
-	router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
+	router.POST("/restaurant", restaurantHandler.CreateRestaurantDetails)
+	router.PUT("/restaurant", restaurantHandler.UpdateRestaurantDetails)
+	router.GET("/restaurant/:id", restaurantHandler.GetRestaurantByID)
+	router.GET("/restaurant/store/:store_id", restaurantHandler.GetRestaurantDetailsByStoreID)
+	router.GET("/restaurants/user/:user_id", restaurantHandler.GetRestaurantsByUserID)
+	router.DELETE("/restaurant/:id", restaurantHandler.DeleteRestaurant)
+
+	router.POST("/table", tableHandler.CreateTable)
+	router.GET("/table/:store_id", tableHandler.GetTablesByStoreID)
+	router.PUT("/table", tableHandler.UpdateTable)
+	router.DELETE("/table/:id", tableHandler.DeleteTable)
+
+	// router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
 
 	router.GET("/:id", handler.GetStoreByID)
 	router.GET("/user/:user_id", handler.GetStoreByUserID)
