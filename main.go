@@ -76,12 +76,12 @@ func main() {
 	storeRepository2 := repository.NewStoreRepository(db)
 	storeRepository3 := repository.NewStoreRepository(db)
 	reviewRepository := repository.NewReviewRepository(db)
-	restaurantRepository := repository.NewRestaurantRepository(db)
+
 	tableRespository := repository.NewTableRepository(db)
 
 	StoreService := service.NewStoreService(storeRepository, imageClient)
 	ReviewService := service.NewReviewService(reviewRepository, storeRepository3)
-	RestaurantService := service.NewRestaurantService(restaurantRepository)
+
 	TableService := service.NewTableService(tableRespository)
 
 	go consumeKafka(storeRepository2, p)
@@ -91,7 +91,7 @@ func main() {
 
 	handler := handlers.NewHandler(&StoreService)
 	reviewHandler := handlers.NewReviewHandler(&ReviewService)
-	restaurantHandler := handlers.NewRestaurantHandler(&RestaurantService)
+
 	tableHandler := handlers.NewTableHandler(&TableService)
 
 	router.GET("ping", func(c *gin.Context) {
@@ -107,13 +107,6 @@ func main() {
 
 	router.GET("/reviews/:store_id", reviewHandler.GetReviewsByStoreID)
 	router.GET("/review/:id", reviewHandler.GetReviewByID)
-
-	router.POST("/restaurant", restaurantHandler.CreateRestaurantDetails)
-	router.PUT("/restaurant", restaurantHandler.UpdateRestaurantDetails)
-	router.GET("/restaurant/:id", restaurantHandler.GetRestaurantByID)
-	router.GET("/restaurant/store/:store_id", restaurantHandler.GetRestaurantDetailsByStoreID)
-	router.GET("/restaurants/user/:user_id", restaurantHandler.GetRestaurantsByUserID)
-	router.DELETE("/restaurant/:id", restaurantHandler.DeleteRestaurant)
 
 	router.POST("/table", tableHandler.CreateTable)
 	router.GET("/table/:store_id", tableHandler.GetTablesByStoreID)
@@ -146,7 +139,7 @@ type Notification struct {
 func consumeKafka(storeRepo repository.StoreRepository, notificationProducer *kafka.Producer) {
 	conf := ReadConfig()
 
-	topic := "onlineorder"
+	topic := "sales"
 
 	// sets the consumer group ID and offset
 	conf["group.id"] = "go-group-1"
@@ -157,7 +150,8 @@ func consumeKafka(storeRepo repository.StoreRepository, notificationProducer *ka
 	consumer.SubscribeTopics([]string{topic}, nil)
 	var order struct {
 		StoreId     string `json:"store_id"`
-		OrderStatus string `json:"order_status"`
+		OrderStatus string `json:"status"`
+		Type        string `json:"type"`
 	}
 	run := true
 	for run {
@@ -172,7 +166,7 @@ func consumeKafka(storeRepo repository.StoreRepository, notificationProducer *ka
 			}
 			fmt.Println("Order received: ", order)
 
-			if order.OrderStatus == "placed" {
+			if order.OrderStatus == "placed" && order.Type == "online_order" {
 				fcm, err := storeRepo.GetFCMTokenByStoreID(order.StoreId)
 				if err != nil {
 					fmt.Println("Error getting FCM token: ", err)
