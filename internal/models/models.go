@@ -2,20 +2,20 @@ package models
 
 import "time"
 
-type StoreType string
+// type StoreType string
 
-const (
-	StoreTypeGeneralStores StoreType = "general_store"
-	StoreTypeStationery    StoreType = "stationery"
-	StoreTypeElectronics   StoreType = "electronics"
-	StoreTypeFashion       StoreType = "fashion"
-	StoreTypeFootwear      StoreType = "footwear"
-	StoreTypeAccessories   StoreType = "accessories"
-	StoreTypeRental        StoreType = "rental"
-	StoreTypeGrocery       StoreType = "grocery"
-	StoreTypeBeauty        StoreType = "beauty"
-	StoreTypeSports        StoreType = "sports"
-)
+// const (
+// 	StoreTypeGeneralStores StoreType = "general_store"
+// 	StoreTypeStationery    StoreType = "stationery"
+// 	StoreTypeElectronics   StoreType = "electronics"
+// 	StoreTypeFashion       StoreType = "fashion"
+// 	StoreTypeFootwear      StoreType = "footwear"
+// 	StoreTypeAccessories   StoreType = "accessories"
+// 	StoreTypeRental        StoreType = "rental"
+// 	StoreTypeGrocery       StoreType = "grocery"
+// 	StoreTypeBeauty        StoreType = "beauty"
+// 	StoreTypeSports        StoreType = "sports"
+// )
 
 type Store struct {
 	StorePublic
@@ -34,7 +34,7 @@ type StorePublic struct {
 	ClosingTime string `json:"closing_time"`
 
 	//To be removed
-	StoreType StoreType `json:"store_type"`
+	StoreType string `json:"store_type"`
 
 	Category    string `json:"category" gorm:"default:store"`
 	SubCategory string `json:"sub_category" gorm:"default:general_store'"`
