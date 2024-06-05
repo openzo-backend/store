@@ -50,21 +50,28 @@ type StorePublic struct {
 }
 
 type StorePrivate struct {
-	FCMToken        string `json:"fcm_token,omitempty" args:"private"`
-	UserID          string `json:"user_id,omitempty" args:"private" gorm:"unique"`
-	UserEmail       string `json:"user_email,omitempty" args:"private" gorm:"unique"`
-	Phone           string `json:"phone,omitempty" gorm:"unique" args:"private"`
-	DetailsComplete bool   `json:"details_complete,omitempty" gorm:"default:false"`
-	OnlineDiscovery bool   `json:"online_discovery,omitempty" gorm:"default:true"`
+	FCMToken  string `json:"fcm_token,omitempty" args:"private"`
+	UserID    string `json:"user_id,omitempty" args:"private" gorm:"unique"`
+	UserEmail string `json:"user_email,omitempty" args:"private" gorm:"unique"`
+	Phone     string `json:"phone,omitempty" gorm:"unique" args:"private"`
+
+	DetailsComplete bool `json:"details_complete,omitempty" gorm:"default:false"`
+	OnlineDiscovery bool `json:"online_discovery,omitempty" gorm:"default:true"`
 }
 
 type RestaurantDetails struct {
-	Cuisine         string `json:"cuisine,omitempty" gorm:"default:multi cuisine"`
-	PureVeg         bool   `json:"pure_veg,omitempty" gorm:"default:false"`
-	Alcohol         bool   `json:"alcohol,omitempty" gorm:"default:false"`
-	SeatingType     string `json:"seating_type,omitempty" gorm:"default:indoor"`
-	TableCount      int    `json:"table_count,omitempty"`
-	SeatingCapacity int    `json:"seating_capacity,omitempty"`
+	// Cuisine         string `json:"cuisine,omitempty" gorm:"default:multi cuisine"`
+	PrimaryCuisine   string `json:"primary_cuisine,omitempty" gorm:"default:multi cuisine"`
+	SecondaryCuisine string `json:"secondary_cuisine,omitempty" gorm:"default:multi cuisine"`
+
+	AvgPricePerPerson int `json:"avg_price_per_person,omitempty" gorm:"default:0"`
+
+	PureVeg bool `json:"pure_veg,omitempty" gorm:"default:false"`
+	Alcohol bool `json:"alcohol,omitempty" gorm:"default:false"`
+
+	TableCount         int  `json:"table_count,omitempty"`
+	SeatingCapacity    int  `json:"seating_capacity,omitempty"`
+	ReserveTableOnline bool `json:"reserve_table_online,omitempty" gorm:"default:false"`
 }
 
 type Review struct {

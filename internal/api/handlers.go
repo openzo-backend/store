@@ -8,6 +8,7 @@ import (
 	"github.com/tanush-128/openzo_backend/store/internal/middlewares"
 	"github.com/tanush-128/openzo_backend/store/internal/models"
 	"github.com/tanush-128/openzo_backend/store/internal/service"
+	"github.com/tanush-128/openzo_backend/store/internal/utils"
 )
 
 type Handler struct {
@@ -39,6 +40,15 @@ func (h *Handler) CreateStore(ctx *gin.Context) {
 
 	store.Description = ctx.PostForm("description")
 	store.FCMToken = ctx.PostForm("fcm_token")
+
+	store.PrimaryCuisine = ctx.PostForm("primary_cuisine")
+	store.SecondaryCuisine = ctx.PostForm("secondary_cuisine")
+	store.AvgPricePerPerson = utils.StringToInt(ctx.PostForm("avg_price_per_person"))
+	store.PureVeg = ctx.PostForm("pure_veg") == "true"
+	store.Alcohol = ctx.PostForm("alcohol") == "true"
+	store.TableCount = utils.StringToInt(ctx.PostForm("table_count"))
+	store.SeatingCapacity = utils.StringToInt(ctx.PostForm("seating_capacity"))
+	store.ReserveTableOnline = ctx.PostForm("reserve_table_online") == "true"
 
 	log.Println("Phone no", store.Phone)
 	log.Println("User ID", store.UserID)
@@ -156,6 +166,15 @@ func (h *Handler) UpdateStore(ctx *gin.Context) {
 	store.SubCategory = ctx.PostForm("sub_category")
 	store.Description = ctx.PostForm("description")
 	store.FCMToken = ctx.PostForm("fcm_token")
+
+	store.PrimaryCuisine = ctx.PostForm("primary_cuisine")
+	store.SecondaryCuisine = ctx.PostForm("secondary_cuisine")
+	store.AvgPricePerPerson = utils.StringToInt(ctx.PostForm("avg_price_per_person"))
+	store.PureVeg = ctx.PostForm("pure_veg") == "true"
+	store.Alcohol = ctx.PostForm("alcohol") == "true"
+	store.TableCount = utils.StringToInt(ctx.PostForm("table_count"))
+	store.SeatingCapacity = utils.StringToInt(ctx.PostForm("seating_capacity"))
+	store.ReserveTableOnline = ctx.PostForm("reserve_table_online") == "true"
 
 	updatedStore, err := h.storeService.UpdateStore(ctx, store)
 	if err != nil {
