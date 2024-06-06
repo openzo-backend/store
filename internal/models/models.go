@@ -61,13 +61,13 @@ type StorePrivate struct {
 
 type RestaurantDetails struct {
 	// Cuisine         string `json:"cuisine,omitempty" gorm:"default:multi cuisine"`
-	PrimaryCuisine   string `json:"primary_cuisine,omitempty" gorm:"default:multi cuisine"`
-	SecondaryCuisine string `json:"secondary_cuisine,omitempty" gorm:"default:multi cuisine"`
+	PrimaryCuisine   string `json:"primary_cuisine,omitempty"`
+	SecondaryCuisine string `json:"secondary_cuisine,omitempty"`
 
-	AvgPricePerPerson int `json:"avg_price_per_person,omitempty" gorm:"default:0"`
+	AvgPricePerPerson int `json:"avg_price_per_person,omitempty"`
 
-	PureVeg bool `json:"pure_veg,omitempty" gorm:"default:false"`
-	Alcohol bool `json:"alcohol,omitempty" gorm:"default:false"`
+	PureVeg bool `json:"pure_veg,omitempty"`
+	Alcohol bool `json:"alcohol,omitempty"`
 
 	TableCount         int  `json:"table_count,omitempty"`
 	SeatingCapacity    int  `json:"seating_capacity,omitempty"`
