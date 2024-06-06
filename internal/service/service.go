@@ -87,6 +87,8 @@ func (s *storeService) UpdateStore(ctx *gin.Context, req models.Store) (models.S
 	}
 
 	req.Image = store.Image
+	req.Rating = store.Rating
+	req.ReviewCount = store.ReviewCount
 
 	file, err := ctx.FormFile("image")
 	if err == nil {
