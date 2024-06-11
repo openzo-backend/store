@@ -79,7 +79,7 @@ func main() {
 
 	tableRespository := repository.NewTableRepository(db)
 
-	StoreService := service.NewStoreService(storeRepository, imageClient)
+	StoreService := service.NewStoreService(storeRepository, imageClient, p)
 	ReviewService := service.NewReviewService(reviewRepository, storeRepository3)
 
 	TableService := service.NewTableService(tableRespository)

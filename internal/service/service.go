@@ -1,6 +1,9 @@
 package service
 
 import (
+	"encoding/json"
+
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/gin-gonic/gin"
 	"github.com/tanush-128/openzo_backend/store/internal/models"
 	"github.com/tanush-128/openzo_backend/store/internal/pb"
@@ -24,12 +27,13 @@ type StoreService interface {
 type storeService struct {
 	storeRepository repository.StoreRepository
 	imageClient     pb.ImageServiceClient
+	kafkaProducer   *kafka.Producer
 }
 
 func NewStoreService(storeRepository repository.StoreRepository,
-	imageClient pb.ImageServiceClient,
+	imageClient pb.ImageServiceClient, p *kafka.Producer,
 ) StoreService {
-	return &storeService{storeRepository: storeRepository, imageClient: imageClient}
+	return &storeService{storeRepository: storeRepository, imageClient: imageClient, kafkaProducer: p}
 }
 
 func (s *storeService) CreateStore(ctx *gin.Context, req models.Store) (models.Store, error) {
@@ -60,8 +64,27 @@ func (s *storeService) CreateStore(ctx *gin.Context, req models.Store) (models.S
 	if err != nil {
 		return models.Store{}, err // Propagate error
 	}
-
+	go writeStoreToKafka(createdStore, s.kafkaProducer)
 	return createdStore, nil
+}
+
+func writeStoreToKafka(store models.Store, p *kafka.Producer) {
+	// Write store to Kafka
+	topic := "stores"
+	storeJson, err := json.Marshal(store)
+	if err != nil {
+		return
+	}
+
+	p.Produce(
+		&kafka.Message{
+			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+			Value:          storeJson,
+			Key:            []byte(store.ID),
+		}, nil)
+
+	p.Flush(15 * 1000)
+
 }
 
 func (s *storeService) GetStoreByUserID(ctx *gin.Context, id string) (models.Store, error) {
@@ -112,6 +135,8 @@ func (s *storeService) UpdateStore(ctx *gin.Context, req models.Store) (models.S
 	if err != nil {
 		return models.Store{}, err
 	}
+
+	go writeStoreToKafka(updatedStore, s.kafkaProducer)
 
 	return updatedStore, nil
 }
