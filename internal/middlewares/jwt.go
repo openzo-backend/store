@@ -43,27 +43,32 @@ func VerifyTokenAndGetUser(c pb.UserServiceClient, ctx context.Context, token st
 
 }
 
-
-
-func (m *Middleware ) JwtMiddleware(c *gin.Context) {
+func (m *Middleware) JwtMiddleware(c *gin.Context) {
 	//get the token from the header
 	token := c.GetHeader("Authorization")
 	if token == "" {
-		c.JSON(401, gin.H{"error": "Authorization header is required"})
-		c.Abort()
-		return
+		// c.JSON(401, gin.H{"error": "Authorization header is required"})
+		// c.Abort()
+		// return
+		nullUser := User{
+			ID:    "",
+			Email: "",
+			Name:  "",
+		}
+		c.Set("user", nullUser)
+		c.Next()
+	} else {
+		//validate the token
+		user, err := VerifyTokenAndGetUser(m.UserServiceClient, c, token)
+		if err != nil {
 
+			c.JSON(401, gin.H{"error": "Invalid token"})
+			c.Abort()
+			return
+		}
+
+		//set the user in the context
+		c.Set("user", user)
+		c.Next()
 	}
-	//validate the token
-	user, err := VerifyTokenAndGetUser(m.UserServiceClient, c, token)
-	if err != nil {
-
-		c.JSON(401, gin.H{"error": "Invalid token"})
-		c.Abort()
-		return
-	}
-
-	//set the user in the context
-	c.Set("user", user)
-	c.Next()
 }
