@@ -39,6 +39,9 @@ type StorePublic struct {
 	Category    string `json:"category" gorm:"default:store"`
 	SubCategory string `json:"sub_category" gorm:"default:general_store'"`
 
+	MetaDescription string `json:"meta_description,omitempty"`
+	MetaTags        string `json:"meta_tags,omitempty"`
+
 	Description string  `json:"description"`
 	Rating      float64 `json:"rating" gorm:"default:0"`
 	ReviewCount int     `json:"review_count" gorm:"default:0"`
