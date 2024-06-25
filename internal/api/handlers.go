@@ -24,9 +24,9 @@ func (h *Handler) CreateStore(ctx *gin.Context) {
 
 	store.Name = ctx.PostForm("name")
 	store.Pincode = ctx.PostForm("pincode")
-	store.UserEmail = ctx.PostForm("user_email")
-	store.UserID = ctx.PostForm("user_id")
 	store.Address = ctx.PostForm("address")
+	store.UserID = ctx.PostForm("user_id")
+	store.UserEmail = ctx.PostForm("user_email")
 	store.Phone = ctx.PostForm("phone")
 	store.Location = ctx.PostForm("location")
 	store.OpeningTime = ctx.PostForm("opening_time")
@@ -131,6 +131,19 @@ func (h *Handler) GetStoresByPincodeAndCategory(ctx *gin.Context) {
 	category := ctx.Param("category")
 
 	stores, err := h.storeService.GetStoresByPincodeAndCategory(ctx, pincode, category)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, stores)
+}
+
+func (h *Handler) GetStoresByPincodeAndSubCategory(ctx *gin.Context) {
+	pincode := ctx.Param("pincode")
+	category := ctx.Param("sub_category")
+
+	stores, err := h.storeService.GetStoresByPincodeAndSubCategory(ctx, pincode, category)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -17,6 +17,7 @@ type StoreRepository interface {
 	GetStoreByPhoneNo(phoneNo string) (models.Store, error)
 	GetStoresByPincode(pincode string) ([]models.StorePublic, error)
 	GetStoresByPincodeAndCategory(pincode string, category string) ([]models.StorePublic, error)
+	GetStoresByPincodeAndSubCategory(pincode string, category string) ([]models.StorePublic, error)
 	GetCategories() ([]string, error)
 	GetFCMTokenByStoreID(storeID string) (string, error)
 	UpdateStore(Store models.Store) (models.Store, error)
@@ -99,7 +100,18 @@ func (r *storeRepository) GetStoresByPincode(pincode string) ([]models.StorePubl
 func (r *storeRepository) GetStoresByPincodeAndCategory(pincode string, category string) ([]models.StorePublic, error) {
 	var Stores []models.StorePublic
 
-	tx := r.db.Model(&models.Store{}).Where("store_type = ? AND pincode = ?", category, pincode).Find(&Stores)
+	tx := r.db.Model(&models.Store{}).Where("category = ? AND pincode = ?", category, pincode).Find(&Stores)
+	if tx.Error != nil {
+		return []models.StorePublic{}, tx.Error
+	}
+
+	return Stores, nil
+}
+
+func (r *storeRepository) GetStoresByPincodeAndSubCategory(pincode string, category string) ([]models.StorePublic, error) {
+	var Stores []models.StorePublic
+
+	tx := r.db.Model(&models.Store{}).Where("sub_category = ? AND pincode = ?", category, pincode).Find(&Stores)
 	if tx.Error != nil {
 		return []models.StorePublic{}, tx.Error
 	}

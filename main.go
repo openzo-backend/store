@@ -103,6 +103,7 @@ func main() {
 	// router.Use(middlewares.JwtMiddleware(c))
 	router.GET("/pincode/:pincode", handler.GetStoresByPincode)
 	router.GET("/pincode/:pincode/category/:category", handler.GetStoresByPincodeAndCategory)
+	router.GET("/pincode/:pincode/subcategory/:sub_category", handler.GetStoresByPincodeAndSubCategory)
 	router.GET("/getCategories", handler.GetCategories)
 
 	router.GET("/reviews/:store_id", reviewHandler.GetReviewsByStoreID)

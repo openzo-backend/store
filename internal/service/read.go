@@ -37,6 +37,16 @@ func (s *storeService) GetStoresByPincodeAndCategory(ctx *gin.Context, pincode s
 	return stores, nil
 }
 
+func (s *storeService) GetStoresByPincodeAndSubCategory(ctx *gin.Context, pincode string, category string) ([]models.StorePublic, error) {
+	stores, err := s.storeRepository.GetStoresByPincodeAndSubCategory(pincode, category)
+	if err != nil {
+		return []models.StorePublic{}, err
+	}
+
+	return stores, nil
+
+}
+
 func (s *storeService) GetCategories(ctx *gin.Context) ([]string, error) {
 	categories, err := s.storeRepository.GetCategories()
 	if err != nil {

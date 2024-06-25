@@ -18,6 +18,7 @@ type StoreService interface {
 	GetStoreByID(ctx *gin.Context, id string) (models.Store, error)
 	GetStoresByPincode(ctx *gin.Context, pincode string) ([]models.StorePublic, error)
 	GetStoresByPincodeAndCategory(ctx *gin.Context, pincode string, category string) ([]models.StorePublic, error)
+	GetStoresByPincodeAndSubCategory(ctx *gin.Context, pincode string, category string) ([]models.StorePublic, error)
 	GetStoreByPhoneNo(ctx *gin.Context, phoneNo string) (models.Store, error)
 	GetStoreByUserID(ctx *gin.Context, userID string) (models.Store, error)
 	GetCategories(ctx *gin.Context) ([]string, error)
