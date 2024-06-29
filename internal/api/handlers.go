@@ -33,6 +33,7 @@ func (h *Handler) CreateStore(ctx *gin.Context) {
 	store.ClosingTime = ctx.PostForm("closing_time")
 	store.OnlineDiscovery = ctx.PostForm("online_discovery") == "true"
 	store.SelfDeliveryService = ctx.PostForm("self_delivery_service") == "true"
+	store.DetailsComplete = ctx.PostForm("details_complete") == "true"
 	store.StoreType = ctx.PostForm("store_type")
 	// store.StoreType = models.StoreType(ctx.PostForm("store_type"))
 	store.Category = ctx.PostForm("category")
@@ -176,6 +177,7 @@ func (h *Handler) UpdateStore(ctx *gin.Context) {
 	store.ClosingTime = ctx.PostForm("closing_time")
 	store.OnlineDiscovery = ctx.PostForm("online_discovery") == "true"
 	store.SelfDeliveryService = ctx.PostForm("self_delivery_service") == "true"
+	store.DetailsComplete = ctx.PostForm("details_complete") == "true"
 	store.StoreType = ctx.PostForm("store_type")
 	store.Category = ctx.PostForm("category")
 	store.SubCategory = ctx.PostForm("sub_category")

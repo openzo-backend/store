@@ -25,23 +25,6 @@ func StringToTime(s string) time.Time {
 	return t
 }
 
-func UploadFile(file *multipart.FileHeader) (string, error) {
-	fileHeader := file
-	f, err := fileHeader.Open()
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-	// f, err := imageProcessing(file, 20)
-
-	uploaderURL, err := SaveFile(f, fileHeader)
-	if err != nil {
-		return "", err
-	}
-	return uploaderURL, nil
-
-}
-
 func FileHeaderToBytes(fileHeader *multipart.FileHeader) ([]byte, error) {
 	// Open the file from the multipart form
 	file, err := fileHeader.Open()

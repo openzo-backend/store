@@ -2,21 +2,6 @@ package models
 
 import "time"
 
-// type StoreType string
-
-// const (
-// 	StoreTypeGeneralStores StoreType = "general_store"
-// 	StoreTypeStationery    StoreType = "stationery"
-// 	StoreTypeElectronics   StoreType = "electronics"
-// 	StoreTypeFashion       StoreType = "fashion"
-// 	StoreTypeFootwear      StoreType = "footwear"
-// 	StoreTypeAccessories   StoreType = "accessories"
-// 	StoreTypeRental        StoreType = "rental"
-// 	StoreTypeGrocery       StoreType = "grocery"
-// 	StoreTypeBeauty        StoreType = "beauty"
-// 	StoreTypeSports        StoreType = "sports"
-// )
-
 type Store struct {
 	StorePublic
 
@@ -24,7 +9,7 @@ type Store struct {
 }
 
 type StorePublic struct {
-	ID          string `json:"id" gorm:"primaryKey"` // The ID field is also the UUID for the store
+	ID          string `json:"id" gorm:"primaryKey"`
 	Name        string `json:"name"`
 	Image       string `json:"image"`
 	Pincode     string `json:"pincode"`
@@ -95,4 +80,12 @@ type ResTable struct {
 	Available bool   `json:"available"`
 	Section   string `json:"section"`
 	Shape     string `json:"shape"`
+}
+
+//to store the views of the store per day
+type View struct {
+	ID        string    `json:"id" gorm:"primaryKey"`
+	StoreID   string    `json:"store_id" gorm:"size:36"`
+	ViewCount int       `json:"view_count"`
+	Date      time.Time `json:"date" gorm:"autoCreateTime"`
 }
