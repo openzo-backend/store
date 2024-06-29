@@ -117,6 +117,8 @@ func main() {
 	router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
 
 	router.GET("/:id", handler.GetStoreByID)
+	router.GET("basic/:id", handler.GetStoreBasicDetailsByID)
+
 	router.GET("/user/:user_id", handler.GetStoreByUserID)
 	router.POST("/", handler.CreateStore)
 	router.PUT("/:id", handler.UpdateStore)

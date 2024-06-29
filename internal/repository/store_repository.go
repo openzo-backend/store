@@ -4,14 +4,32 @@ import (
 	"log"
 
 	"github.com/google/uuid"
+
 	"github.com/tanush-128/openzo_backend/store/internal/models"
 
 	"gorm.io/gorm"
 )
 
+type StoreBasicDetails struct {
+	ID    string `json:"id" gorm:"primaryKey"`
+	Name  string `json:"name"`
+	Image string `json:"image"`
+
+	Address string `json:"address"`
+
+	Category    string `json:"category" gorm:"default:store"`
+	SubCategory string `json:"sub_category" gorm:"default:general_store'"`
+
+	Description string  `json:"description"`
+	Rating      float64 `json:"rating" gorm:"default:0"`
+	ReviewCount int     `json:"review_count" gorm:"default:0"`
+}
+
 type StoreRepository interface {
 	CreateStore(Store models.Store) (models.Store, error)
 	GetStoreByID(id string) (models.Store, error)
+	GetStoreBasicDetailsByID(id string) (StoreBasicDetails, error)
+
 	GetStoreByEmail(email string) (models.Store, error)
 	GetStoreByUserID(userID string) (models.Store, error)
 	GetStoreByPhoneNo(phoneNo string) (models.Store, error)
@@ -52,6 +70,16 @@ func (r *storeRepository) GetStoreByID(id string) (models.Store, error) {
 	tx := r.db.Where("id = ?", id).First(&Store)
 	if tx.Error != nil {
 		return models.Store{}, tx.Error
+	}
+
+	return Store, nil
+}
+
+func (r *storeRepository) GetStoreBasicDetailsByID(id string) (StoreBasicDetails, error) {
+	var Store StoreBasicDetails
+	tx := r.db.Model(models.Store{}).Where("id = ?", id).First(&Store)
+	if tx.Error != nil {
+		return StoreBasicDetails{}, tx.Error
 	}
 
 	return Store, nil

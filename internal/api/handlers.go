@@ -85,6 +85,18 @@ func (h *Handler) GetStoreByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, store)
 }
 
+func (h *Handler) GetStoreBasicDetailsByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	store, err := h.storeService.GetStoreBasicDetailsByID(ctx, id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, store)
+}
+
 func (h *Handler) GetStoreByPhoneNo(ctx *gin.Context) {
 	phoneNo := ctx.Param("phone_no")
 
