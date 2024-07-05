@@ -11,6 +11,7 @@ type Store struct {
 type StorePublic struct {
 	ID          string `json:"id" gorm:"primaryKey"`
 	Name        string `json:"name"`
+	Phone       string `json:"phone,omitempty" gorm:"unique" args:"private"`
 	Image       string `json:"image"`
 	Pincode     string `json:"pincode"`
 	Location    string `json:"location"`
@@ -41,7 +42,6 @@ type StorePrivate struct {
 	FCMToken  string `json:"fcm_token,omitempty" args:"private"`
 	UserID    string `json:"user_id,omitempty" args:"private" gorm:"unique"`
 	UserEmail string `json:"user_email,omitempty" args:"private" gorm:"unique"`
-	Phone     string `json:"phone,omitempty" gorm:"unique" args:"private"`
 
 	DetailsComplete bool `json:"details_complete,omitempty" gorm:"default:false"`
 	OnlineDiscovery bool `json:"online_discovery,omitempty" gorm:"default:true"`
