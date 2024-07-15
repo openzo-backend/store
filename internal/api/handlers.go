@@ -52,6 +52,8 @@ func (h *Handler) CreateStore(ctx *gin.Context) {
 	store.ReserveTableOnline = ctx.PostForm("reserve_table_online") == "true"
 	store.MetaDescription = ctx.PostForm("meta_description")
 	store.MetaTags = ctx.PostForm("meta_tags")
+	store.Busy = ctx.PostForm("busy") == "true"
+	store.DeliveryCharge = utils.StringToInt(ctx.PostForm("delivery_charge"))
 
 	log.Println("Phone no", store.Phone)
 	log.Println("User ID", store.UserID)
@@ -206,6 +208,8 @@ func (h *Handler) UpdateStore(ctx *gin.Context) {
 	store.ReserveTableOnline = ctx.PostForm("reserve_table_online") == "true"
 	store.MetaDescription = ctx.PostForm("meta_description")
 	store.MetaTags = ctx.PostForm("meta_tags")
+	store.Busy = ctx.PostForm("busy") == "true"
+	store.DeliveryCharge = utils.StringToInt(ctx.PostForm("delivery_charge"))
 
 	updatedStore, err := h.storeService.UpdateStore(ctx, store)
 	if err != nil {
