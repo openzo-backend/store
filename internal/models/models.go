@@ -34,6 +34,8 @@ type StorePublic struct {
 
 	CreatedAt           time.Time `json:"created_at" gorm:"autoCreateTime"`
 	SelfDeliveryService bool      `json:"self_delivery_service" gorm:"default:false"`
+	DeliveryCharge      int       `json:"delivery_charge" gorm:"default:0"`
+	Busy                bool      `json:"busy" gorm:"default:false"`
 
 	RestaurantDetails
 }
