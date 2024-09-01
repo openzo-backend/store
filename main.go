@@ -146,7 +146,7 @@ func consumeKafka(storeRepo repository.StoreRepository, notificationProducer *ka
 
 	// sets the consumer group ID and offset
 	conf["group.id"] = "go-group-1"
-	conf["auto.offset.reset"] = "earliest"
+	conf["auto.offset.reset"] = "latest"
 
 	// creates a new consumer and subscribes to your topic
 	consumer, _ := kafka.NewConsumer(&conf)
