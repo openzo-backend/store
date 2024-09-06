@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tanush-128/openzo_backend/store/config"
@@ -141,31 +142,66 @@ type Notification struct {
 
 func consumeKafka(storeRepo repository.StoreRepository, notificationProducer *kafka.Producer) {
 	conf := ReadConfig()
-
 	topic := "sales"
 
-	// sets the consumer group ID and offset
+	// Set the consumer group ID and offset
 	conf["group.id"] = "go-group-1"
 	conf["auto.offset.reset"] = "latest"
 
-	// creates a new consumer and subscribes to your topic
-	consumer, _ := kafka.NewConsumer(&conf)
-	consumer.SubscribeTopics([]string{topic}, nil)
+	var consumer *kafka.Consumer
+	var err error
+	var maxRetries = 5
+	var retryInterval = 1 * time.Second
+
+	// Function to create and subscribe consumer
+	createConsumer := func() error {
+		consumer, err = kafka.NewConsumer(&conf)
+		if err != nil {
+			return fmt.Errorf("error creating consumer: %v", err)
+		}
+
+		err = consumer.SubscribeTopics([]string{topic}, nil)
+		if err != nil {
+			return fmt.Errorf("error subscribing to topic: %v", err)
+		}
+		return nil
+	}
+
+	// Attempt to create and subscribe consumer with retries
+	for i := 0; i < maxRetries; i++ {
+		err = createConsumer()
+		if err == nil {
+			fmt.Println("Connected to Kafka cluster.")
+			break
+		}
+		fmt.Fprintf(os.Stderr, "Attempt %d: %v\n", i+1, err)
+		time.Sleep(retryInterval)
+		retryInterval *= 2 // Exponential backoff
+	}
+
+	if err != nil {
+		fmt.Println("Failed to connect to Kafka cluster after several attempts. Exiting.")
+		return
+	}
+
+	defer consumer.Close()
+
 	var order struct {
 		StoreId     string `json:"store_id"`
 		OrderStatus string `json:"status"`
 		Type        string `json:"type"`
 	}
+
 	run := true
 	for run {
-		// consumes messages from the subscribed topic and prints them to the console
 		e := consumer.Poll(1000)
 		switch ev := e.(type) {
 		case *kafka.Message:
-			// application-specific processing
+			// Application-specific processing
 			err := json.Unmarshal(ev.Value, &order)
 			if err != nil {
 				fmt.Println("Error unmarshalling JSON: ", err)
+				continue
 			}
 			fmt.Println("Order received: ", order)
 
@@ -173,31 +209,61 @@ func consumeKafka(storeRepo repository.StoreRepository, notificationProducer *ka
 				fcm, err := storeRepo.GetFCMTokenByStoreID(order.StoreId)
 				if err != nil {
 					fmt.Println("Error getting FCM token: ", err)
+					continue
 				}
 				fmt.Println("FCM token: ", fcm)
 
-				notificationMsg, _ := json.Marshal(Notification{
+				notificationMsg, err := json.Marshal(Notification{
 					Message:  "You have a new order",
 					FCMToken: fcm,
 				})
-				notificationTopic := "notification"
+				if err != nil {
+					fmt.Println("Error marshalling notification message: ", err)
+					continue
+				}
 
-				// send a notification to the store
-				notificationProducer.Produce(&kafka.Message{
+				notificationTopic := "notification"
+				err = notificationProducer.Produce(&kafka.Message{
 					TopicPartition: kafka.TopicPartition{Topic: &notificationTopic, Partition: kafka.PartitionAny},
 					Value:          notificationMsg,
 				}, nil)
+				if err != nil {
+					fmt.Println("Error producing notification: ", err)
+					continue
+				}
 
 				notificationProducer.Flush(15 * 1000)
 			}
 
 		case kafka.Error:
-			fmt.Fprintf(os.Stderr, "%% Error: %v\n", ev)
-			run = false
+			fmt.Fprintf(os.Stderr, "Error from Kafka: %v\n", ev)
+			if ev.Code() == kafka.ErrAllBrokersDown {
+				fmt.Println("All brokers are down. Attempting to reconnect...")
+
+				for i := 0; i < maxRetries; i++ {
+					err = createConsumer()
+					if err == nil {
+						fmt.Println("Reconnected to Kafka cluster.")
+						break
+					}
+					fmt.Fprintf(os.Stderr, "Reconnection attempt %d failed: %v\n", i+1, err)
+					time.Sleep(retryInterval)
+					retryInterval *= 2 // Exponential backoff
+				}
+
+				if err != nil {
+					fmt.Println("Failed to reconnect after several attempts. Exiting.")
+					run = false
+				}
+			}
+
+		default:
+			if e == nil {
+				// fmt.Println("No messages. Retrying...")
+				time.Sleep(2 * time.Second)
+			}
 		}
 	}
 
-	// closes the consumer connection
-	consumer.Close()
-
+	fmt.Println("Consumer closing.")
 }
