@@ -3,7 +3,9 @@ package service
 import (
 	"encoding/json"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	// "github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
+
 	"github.com/gin-gonic/gin"
 	"github.com/tanush-128/openzo_backend/store/internal/models"
 	"github.com/tanush-128/openzo_backend/store/internal/pb"

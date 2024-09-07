@@ -17,7 +17,8 @@ import (
 
 	"os"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	// "github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 var UserClient pb.UserServiceClient
@@ -74,7 +75,7 @@ func main() {
 	imageClient := pb.NewImageServiceClient(imageConn)
 
 	storeRepository := repository.NewStoreRepository(db)
-	storeRepository2 := repository.NewStoreRepository(db)
+
 	storeRepository3 := repository.NewStoreRepository(db)
 	reviewRepository := repository.NewReviewRepository(db)
 
@@ -85,7 +86,19 @@ func main() {
 
 	TableService := service.NewTableService(tableRespository)
 
-	go consumeKafka(storeRepository2, p)
+	kafkaConfig := ReadConfig()
+	kafkaConfig["group.id"] = "store-group-1"
+	kafkaConfig["auto.offset.reset"] = "latest"
+	kafkaService, err := service.NewKafkaService(kafkaConfig, kafkaConfig, 5, 1*time.Second, []string{"sales"})
+	if err != nil {
+		log.Fatalf("failed to create kafka service: %v", err)
+	}
+
+	go kafkaService.Consume("sales", consumeKafka2(storeRepository, p))
+
+	//
+
+	// go consumeKafka(storeRepository2, p)
 
 	// Initialize HTTP server with Gin
 	router := gin.Default()
@@ -138,6 +151,55 @@ func main() {
 type Notification struct {
 	Message  string `json:"message"`
 	FCMToken string `json:"fcm_token"`
+}
+
+func consumeKafka2(storeRepository repository.StoreRepository, p *kafka.Producer) func(*kafka.Message) error {
+	return func(msg *kafka.Message) error {
+		var order struct {
+			StoreId     string `json:"store_id"`
+			OrderStatus string `json:"status"`
+			Type        string `json:"type"`
+		}
+
+		err := json.Unmarshal(msg.Value, &order)
+		if err != nil {
+			fmt.Println("Error unmarshalling JSON: ", err)
+			return err
+		}
+		fmt.Println("Order received: ", order)
+
+		if order.OrderStatus == "placed" && order.Type == "online_order" {
+			fcm, err := storeRepository.GetFCMTokenByStoreID(order.StoreId)
+			if err != nil {
+				fmt.Println("Error getting FCM token: ", err)
+				return err
+			}
+			fmt.Println("FCM token: ", fcm)
+
+			notificationMsg, err := json.Marshal(Notification{
+				Message:  "You have a new order",
+				FCMToken: fcm,
+			})
+			if err != nil {
+				fmt.Println("Error marshalling notification message: ", err)
+				return err
+			}
+
+			notificationTopic := "notification"
+			err = p.Produce(&kafka.Message{
+				TopicPartition: kafka.TopicPartition{Topic: &notificationTopic, Partition: kafka.PartitionAny},
+				Value:          notificationMsg,
+			}, nil)
+			if err != nil {
+				fmt.Println("Error producing notification: ", err)
+				return err
+			}
+
+			p.Flush(15 * 1000)
+		}
+
+		return nil
+	}
 }
 
 func consumeKafka(storeRepo repository.StoreRepository, notificationProducer *kafka.Producer) {

@@ -6,7 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	// "github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 func ReadConfig() kafka.ConfigMap {
