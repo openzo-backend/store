@@ -54,6 +54,7 @@ func (h *Handler) CreateStore(ctx *gin.Context) {
 	store.MetaTags = ctx.PostForm("meta_tags")
 	store.Busy = ctx.PostForm("busy") == "true"
 	store.DeliveryCharge = utils.StringToInt(ctx.PostForm("delivery_charge"))
+	store.PackagingCharge = utils.StringToInt(ctx.PostForm("packaging_charge"))
 
 	log.Println("Phone no", store.Phone)
 	log.Println("User ID", store.UserID)
@@ -210,6 +211,7 @@ func (h *Handler) UpdateStore(ctx *gin.Context) {
 	store.MetaTags = ctx.PostForm("meta_tags")
 	store.Busy = ctx.PostForm("busy") == "true"
 	store.DeliveryCharge = utils.StringToInt(ctx.PostForm("delivery_charge"))
+	store.PackagingCharge = utils.StringToInt(ctx.PostForm("packaging_charge"))
 
 	updatedStore, err := h.storeService.UpdateStore(ctx, store)
 	if err != nil {
