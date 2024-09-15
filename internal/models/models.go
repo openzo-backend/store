@@ -39,6 +39,7 @@ type StorePublic struct {
 	Busy                bool      `json:"busy" gorm:"default:false"`
 
 	RestaurantDetails
+	Ranking int `json:"ranking" gorm:"default:1"`
 }
 
 type StorePrivate struct {

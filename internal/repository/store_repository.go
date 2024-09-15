@@ -117,7 +117,10 @@ func (r *storeRepository) GetStoreByPhoneNo(phoneNo string) (models.Store, error
 
 func (r *storeRepository) GetStoresByPincode(pincode string) ([]models.StorePublic, error) {
 	var Stores []models.StorePublic
-	tx := r.db.Model(&models.Store{}).Where("pincode = ?", pincode).Find(&Stores)
+	tx := r.db.Model(&models.Store{}).
+		Where("pincode = ?", pincode).
+		Order("ranking ASC").
+		Find(&Stores)
 	if tx.Error != nil {
 		return []models.StorePublic{}, tx.Error
 	}
@@ -128,7 +131,7 @@ func (r *storeRepository) GetStoresByPincode(pincode string) ([]models.StorePubl
 func (r *storeRepository) GetStoresByPincodeAndCategory(pincode string, category string) ([]models.StorePublic, error) {
 	var Stores []models.StorePublic
 
-	tx := r.db.Model(&models.Store{}).Where("category = ? AND pincode = ?", category, pincode).Find(&Stores)
+	tx := r.db.Model(&models.Store{}).Where("category = ? AND pincode = ?", category, pincode).Order("ranking ASC").Find(&Stores)
 	if tx.Error != nil {
 		return []models.StorePublic{}, tx.Error
 	}
@@ -139,7 +142,7 @@ func (r *storeRepository) GetStoresByPincodeAndCategory(pincode string, category
 func (r *storeRepository) GetStoresByPincodeAndSubCategory(pincode string, category string) ([]models.StorePublic, error) {
 	var Stores []models.StorePublic
 
-	tx := r.db.Model(&models.Store{}).Where("sub_category = ? AND pincode = ?", category, pincode).Find(&Stores)
+	tx := r.db.Model(&models.Store{}).Where("sub_category = ? AND pincode = ?", category, pincode).Order("ranking ASC").Find(&Stores)
 	if tx.Error != nil {
 		return []models.StorePublic{}, tx.Error
 	}
@@ -167,13 +170,25 @@ func (r *storeRepository) GetFCMTokenByStoreID(storeID string) (string, error) {
 	return fcmToken, nil
 }
 
-func (r *storeRepository) UpdateStore(Store models.Store) (models.Store, error) {
-	tx := r.db.Save(&Store)
-	if tx.Error != nil {
-		return models.Store{}, tx.Error
+func (r *storeRepository) UpdateStore(store models.Store) (models.Store, error) {
+	// Retrieve the existing store record from the database
+	var existingStore models.Store
+	if err := r.db.First(&existingStore, store.ID).Error; err != nil {
+		return models.Store{}, err
 	}
 
-	return Store, nil
+	// For integer fields
+	if store.Ranking == 0 {
+		existingStore.Ranking = 1
+		// existingStore.Ranking = store.Ranking
+	}
+
+	// Save the updated store back to the database
+	if err := r.db.Save(&store).Error; err != nil {
+		return models.Store{}, err
+	}
+
+	return existingStore, nil
 }
 
 // Implement other repository methods (GetStoreByID, GetStoreByEmail, UpdateStore, etc.) with proper error handling
