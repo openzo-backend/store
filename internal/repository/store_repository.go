@@ -173,7 +173,7 @@ func (r *storeRepository) GetFCMTokenByStoreID(storeID string) (string, error) {
 func (r *storeRepository) UpdateStore(store models.Store) (models.Store, error) {
 	// Retrieve the existing store record from the database
 	var existingStore models.Store
-	if err := r.db.First(&existingStore, store.ID).Error; err != nil {
+	if err := r.db.Where("id = ?", store.ID).First(&existingStore).Error; err != nil {
 		return models.Store{}, err
 	}
 
