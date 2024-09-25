@@ -178,6 +178,10 @@ func (s *storeService) UpdateStore(ctx *gin.Context, req models.Store) (models.S
 	req.ReviewCount = store.ReviewCount
 	req.SelfDeliveryService = store.SelfDeliveryService
 
+	if req.Ranking == 0 {
+		req.Ranking = store.Ranking
+	}
+
 	file, err := ctx.FormFile("image")
 	if err == nil {
 

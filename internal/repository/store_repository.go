@@ -171,24 +171,12 @@ func (r *storeRepository) GetFCMTokenByStoreID(storeID string) (string, error) {
 }
 
 func (r *storeRepository) UpdateStore(store models.Store) (models.Store, error) {
-	// Retrieve the existing store record from the database
-	var existingStore models.Store
-	if err := r.db.Where("id = ?", store.ID).First(&existingStore).Error; err != nil {
-		return models.Store{}, err
-	}
 
-	// For integer fields
-	if store.Ranking == 0 {
-		existingStore.Ranking = 1
-		// existingStore.Ranking = store.Ranking
-	}
-
-	// Save the updated store back to the database
 	if err := r.db.Save(&store).Error; err != nil {
 		return models.Store{}, err
 	}
 
-	return existingStore, nil
+	return store, nil
 }
 
 // Implement other repository methods (GetStoreByID, GetStoreByEmail, UpdateStore, etc.) with proper error handling
