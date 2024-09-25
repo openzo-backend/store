@@ -17,14 +17,12 @@ func StringToInt(s string) int {
 }
 
 func StringToTime(s string) time.Time {
-	t, err := time.Parse(time.DateTime, s)
-
+	t, err := time.Parse(time.RFC3339, s) // Use RFC3339 to parse ISO 8601 format
 	if err != nil {
-		return time.Now().Add(24 * time.Hour)
+		return time.Now().Add(24 * time.Hour) // Return a fallback time if parsing fails
 	}
 	return t
 }
-
 func FileHeaderToBytes(fileHeader *multipart.FileHeader) ([]byte, error) {
 	// Open the file from the multipart form
 	file, err := fileHeader.Open()
