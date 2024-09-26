@@ -9,17 +9,17 @@ type Store struct {
 }
 
 type StorePublic struct {
-	ID           string    `json:"id" gorm:"primaryKey"`
-	Name         string    `json:"name"`
-	Phone        string    `json:"phone,omitempty" gorm:"unique" args:"private"`
-	Image        string    `json:"image"`
-	Pincode      string    `json:"pincode"`
-	Location     string    `json:"location"`
-	Address      string    `json:"address"`
-	OpeningTime  string    `json:"opening_time"`
-	ClosingTime  string    `json:"closing_time"`
-	OpeningTime2 time.Time `json:"opening_time2" gorm:"default:00:00:00"`
-	ClosingTime2 time.Time `json:"closing_time2" gorm:"default:00:00:00"`
+	ID           string     `json:"id" gorm:"primaryKey"`
+	Name         string     `json:"name"`
+	Phone        string     `json:"phone,omitempty" gorm:"unique" args:"private"`
+	Image        string     `json:"image"`
+	Pincode      string     `json:"pincode"`
+	Location     string     `json:"location"`
+	Address      string     `json:"address"`
+	OpeningTime  string     `json:"opening_time"`
+	ClosingTime  string     `json:"closing_time"`
+	// OpeningTime2 string `json:"opening_time2" gorm:"default:null"`
+	// ClosingTime2 string `json:"closing_time2" gorm:"default:null"`
 
 	//To be removed
 	StoreType string `json:"store_type"`

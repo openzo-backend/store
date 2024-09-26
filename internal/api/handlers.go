@@ -22,6 +22,7 @@ func NewHandler(storeService *service.StoreService) *Handler {
 
 // ParseFormFields extracts and validates store fields from the context
 func parseFormFields(ctx *gin.Context) (*models.Store, error) {
+	log.Println(ctx.PostForm("opening_time"))
 	store := models.Store{
 
 		StorePublic: models.StorePublic{
@@ -29,12 +30,12 @@ func parseFormFields(ctx *gin.Context) (*models.Store, error) {
 			Pincode: ctx.PostForm("pincode"),
 			Address: ctx.PostForm("address"),
 
-			Phone:               ctx.PostForm("phone"),
-			Location:            ctx.PostForm("location"),
-			OpeningTime:         ctx.PostForm("opening_time"),
-			ClosingTime:         ctx.PostForm("closing_time"),
-			OpeningTime2:        utils.StringToTime(ctx.PostForm("opening_time2")),
-			ClosingTime2:        utils.StringToTime(ctx.PostForm("closing_time2")),
+			Phone:       ctx.PostForm("phone"),
+			Location:    ctx.PostForm("location"),
+			OpeningTime: ctx.PostForm("opening_time"),
+			ClosingTime: ctx.PostForm("closing_time"),
+			// OpeningTime2:        ctx.PostForm("opening_time2"),
+			// ClosingTime2:       ctx.PostForm("closing_time2"),
 			SelfDeliveryService: ctx.PostForm("self_delivery_service") == "true",
 
 			StoreType:   ctx.PostForm("store_type"),
@@ -67,7 +68,7 @@ func parseFormFields(ctx *gin.Context) (*models.Store, error) {
 			DetailsComplete: ctx.PostForm("details_complete") == "true",
 		},
 	}
-
+	// log.Println("Opening Time:", store.OpeningTime2)
 	// Validate required fields
 	if store.Name == "" || store.UserID == "" || store.Pincode == "" {
 		return nil, errors.New("missing required fields: name, user_id, or pincode")

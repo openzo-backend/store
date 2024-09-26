@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tanush-128/openzo_backend/store/config"
 	handlers "github.com/tanush-128/openzo_backend/store/internal/api"
-	"github.com/tanush-128/openzo_backend/store/internal/middlewares"
 	"github.com/tanush-128/openzo_backend/store/internal/pb"
 	"github.com/tanush-128/openzo_backend/store/internal/repository"
 	"github.com/tanush-128/openzo_backend/store/internal/service"
@@ -128,7 +127,7 @@ func main() {
 	router.PUT("/table", tableHandler.UpdateTable)
 	router.DELETE("/table/:id", tableHandler.DeleteTable)
 
-	router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
+	// router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
 
 	router.GET("/:id", handler.GetStoreByID)
 	router.GET("basic/:id", handler.GetStoreBasicDetailsByID)
