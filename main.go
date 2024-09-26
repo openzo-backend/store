@@ -128,7 +128,13 @@ func main() {
 	router.PUT("/table", tableHandler.UpdateTable)
 	router.DELETE("/table/:id", tableHandler.DeleteTable)
 
+	// router.GET("/admin/:id", handler.GetStoreByID)
+
 	router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
+	//create new admin routes group
+	admin := router.Group("/admin")
+	admin.Use(middlewares.NewMiddleware(c).AdminMiddleware)
+	admin.GET("/:id", handler.GetStoreByID)
 
 	router.GET("/:id", handler.GetStoreByID)
 	router.GET("basic/:id", handler.GetStoreBasicDetailsByID)

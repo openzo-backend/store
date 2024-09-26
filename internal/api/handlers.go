@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tanush-128/openzo_backend/store/internal/middlewares"
 	"github.com/tanush-128/openzo_backend/store/internal/models"
+	"github.com/tanush-128/openzo_backend/store/internal/pb"
 	"github.com/tanush-128/openzo_backend/store/internal/service"
 	"github.com/tanush-128/openzo_backend/store/internal/utils"
 )
@@ -108,7 +109,8 @@ func (h *Handler) GetStoreByID(ctx *gin.Context) {
 	log.Printf("User: %+v", user)
 
 	// Remove private store information if the user does not own the store
-	if store.UserID != user.ID {
+	if store.UserID != user.ID && user.Role != pb.Role_ADMIN {
+		log.Println("Removing private store information")
 		store.StorePrivate = models.StorePrivate{}
 	}
 

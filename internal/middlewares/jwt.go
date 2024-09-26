@@ -10,8 +10,9 @@ import (
 
 type User struct {
 	ID    string
-	Email string
+	Phone string
 	Name  string
+	Role  pb.Role
 }
 
 type Middleware struct {
@@ -20,6 +21,7 @@ type Middleware struct {
 
 type MiddlewareInterface interface {
 	JwtMiddleware(c *gin.Context)
+	AdminMiddleware(c *gin.Context)
 }
 
 func NewMiddleware(userServiceClient pb.UserServiceClient) MiddlewareInterface {
@@ -36,8 +38,9 @@ func VerifyTokenAndGetUser(c pb.UserServiceClient, ctx context.Context, token st
 
 	var user User
 	user.ID = res.GetId()
-	user.Email = res.GetEmail()
-	user.Name = res.GetName()
+	user.Phone = res.GetPhone()
+	user.Role = res.GetRole()
+
 	fmt.Println(user)
 	return user, nil
 
@@ -51,9 +54,9 @@ func (m *Middleware) JwtMiddleware(c *gin.Context) {
 		// c.Abort()
 		// return
 		nullUser := User{
-			ID:    "",
-			Email: "",
-			Name:  "",
+			ID: "",
+
+			Name: "",
 		}
 		c.Set("user", nullUser)
 		c.Next()
@@ -71,4 +74,14 @@ func (m *Middleware) JwtMiddleware(c *gin.Context) {
 		c.Set("user", user)
 		c.Next()
 	}
+}
+
+func (m *Middleware) AdminMiddleware(c *gin.Context) {
+	user := c.MustGet("user").(User)
+	if user.Role != pb.Role_ADMIN {
+		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.Abort()
+		return
+	}
+	c.Next()
 }
